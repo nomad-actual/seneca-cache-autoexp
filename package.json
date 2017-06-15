@@ -1,0 +1,56 @@
+{
+  "name": "seneca-cache-autoexp",
+  "description": "Seneca plugin for auto-expiring cache in Redis",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://ghe.coxautoinc.com/Darren-Reed/dr-services-cache-autoexp.git"
+  },
+  "scripts": {
+    "start": "npm test",
+    "test": "eslint ** && lab test",
+    "semantic-release": "semantic-release pre && npm publish && semantic-release post"
+  },
+  "author": "Darren",
+  "license": "ISC",
+  "dependencies": {
+    "@makemydeal/dr-seneca-logger": "latest",
+    "code": "^4.0.0",
+    "lab": "^13.1.0",
+    "selectn": "^1.1.2",
+    "seneca": "^3.3.0",
+    "seneca-redis-cache": "git+https://github.com/MakeMyDeal/seneca-redis-cache.git"
+  },
+  "devDependencies": {
+    "@krux/condition-jenkins": "^1.0.1",
+    "@makemydeal/eslint-config-dr-services": "latest",
+    "eslint": "^3.19.0",
+    "eslint-config-airbnb": "^14.1.0",
+    "eslint-config-seneca": "^3.0.0",
+    "eslint-plugin-hapi": "^4.0.0",
+    "eslint-plugin-import": "^2.2.0",
+    "eslint-plugin-jsx-a11y": "^4.0.0",
+    "eslint-plugin-react": "^6.10.3",
+    "eslint-plugin-standard": "^2.1.0",
+    "semantic-release": "^6.3.6"
+  },
+  "release": {
+    "branch": "origin/master",
+    "githubUrl": "https://ghe.coxautoinc.com",
+    "githubApiPathPrefix": "/api/v3",
+    "verifyConditions": {
+      "path": "./node_modules/@krux/condition-jenkins"
+    }
+  },
+  "version": "1.0.0",
+  "directories": {
+    "test": "test"
+  },
+  "keywords": [
+    "seneca",
+    "cache",
+    "redis",
+    "expire",
+    "expiration"
+  ]
+}

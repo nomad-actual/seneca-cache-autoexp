@@ -1,0 +1,6 @@
+{
+    "extends": ["@makemydeal/eslint-config-dr-services"],
+    "plugins": [
+        "import"
+    ]
+}
