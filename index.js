@@ -32,9 +32,9 @@ module.exports = function (options) {
     };
 };
 
-function doPrecheck(data) {
-    return data.key && (data.expirationDate || data.expirationSeconds);
-}
+// function doPrecheck(data) {
+//     return data.key && (data.expirationDate || data.expirationSeconds);
+// }
 
 /**
  * Set a key to expire in a defined set of seconds. The msg incoming requires a msg.expirationSeconds which is > 0.
@@ -59,18 +59,7 @@ function expireInSeconds(msg, done) {
  * @param {Function} done
  */
 function expireOnDate(msg, done) {
-    const seneca = this;
-    const logger = seneca.log;
-
-    // figure out number of seconds from then to now.
-
-    const targetExpireDate = msg.expirationDate;
-
-    // attempt to pare date
-    // if !date || !in future, send back null
-
-
-    const expiration = ExpirationCalculator.expireOnDate(targetExpireDate);
+    const expiration = ExpirationCalculator.expireOnDate(msg.expirationDate);
     cacheData(expiration, done);
 }
 
@@ -81,22 +70,31 @@ function expireOnDate(msg, done) {
  * @param {Function} done
  */
 function expireOnDateWithTrustIssues(msg, done) {
-    done(null);
+    done(null); // always fail cache for now
 }
 
 function cacheData(key, value, time, done) {
     const seneca = this;
     const logger = seneca.log;
-
+    logger.info({
+        message: `Cache request: key: ${key} to expire in ${time} seconds`,
+        tags: ['cache', 'redis', 'expire']
+    });
     // call the cache set command to persist the data here. The expire was added in the original seneca-redis because the
     // redis client actually contains the set command to send additional data. It's possible that we'll just use the
     // npm redis client ourselves in here to gain additional commands not exposed in the seneca-redis plugin.
     seneca.act({ role: 'cache', cmd: 'set', key, value, expire: time }, (err, out) => {
-        // intercept here
+        // log here
         if (err) {
-            logger.info(`Logger result: error ${err}`);
+            logger.info({
+                message: `Cache request: key: ${key} to expire in ${time} seconds`,
+                tags: ['cache', 'redis', 'expire']
+            });
         } else {
-            logger.info(`Logger result: success ${out}`);
+            logger.info({
+                message: `Cache request: key: ${key} to expire in ${time} seconds`,
+                tags: ['cache', 'redis', 'expire']
+            });
         }
 
         done(err || out);
