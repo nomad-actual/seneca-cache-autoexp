@@ -114,7 +114,6 @@ lab.experiment('expireCalc tests', () => {
         // Because seneca-redis-cache looks for a redis-serve on init, we need to start one up for it to see
         const resolve = require('path').resolve; // eslint-disable-line global-require
         const bin = resolve('./test/redis/redis-server');
-        console.log(bin);
         const server = new RedisServer({ port: 6379, bin });
 
         lab.before((done) => {
@@ -135,9 +134,6 @@ lab.experiment('expireCalc tests', () => {
 
         lab.test('expireInSeconds should return the expected key when called with valid data', (finish) => {
             const seneca = initSeneca(finish);
-            // seneca.add(mockRedisData.redisSetPattern, (msg, done) => {
-            //     return done(goodKey);
-            // });
             const expireInSecondsPattern = {
                 role: 'cache',
                 cmd: 'set',
