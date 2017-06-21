@@ -24,8 +24,7 @@ module.exports = function (options) {
 
     seneca.add({ role: 'cache', cmd: 'set', expire: 'seconds' }, expireInSeconds);
     seneca.add({ role: 'cache', cmd: 'set', expire: 'date' }, expireOnDate);
-    seneca.add({ role: 'cache', cmd: 'set', expire: 'date', trustIssues: true }, expireOnDateWithTrustIssues);
-    // seneca.add({ role: 'cache', cmd: 'set', expire: 'time', timeUnits: '*' }, expireWithTimeUnit);
+    seneca.add({ role: 'cache', cmd: 'set', expire: 'time', timeUnits: '*' }, expireWithTimeUnit);
 
     return {
         name: PLUGIN_NAME
@@ -64,13 +63,29 @@ function expireOnDate(msg, done) {
 }
 
 /**
- * Similar to expireOnDate with an added check to make sure we only cache data AFTER a certain time period.
- * Example: Expire on the 1st of the month but only start caching again after the first 7 days.
+ * Set a key to expire after a defined unit of time. The msg incoming requires a msg.expirationTime which is > 0.
  * @param {Object} msg
  * @param {Function} done
  */
-function expireOnDateWithTrustIssues(msg, done) {
-    done(null); // always fail cache for now
+function expireWithTimeUnit(msg, done) {
+    const seneca = this;
+    const logger = seneca.log;
+
+    // msg.expirationUnit - unit of time used to measure expiration time
+    // msg.expirationTime - number of time units after which to expire
+
+    if (!msg.expirationUnit || !msg.expirationTime || msg.expirationTime <= 0) {
+        logger.error(`Cache provided bad data for key: ${msg.key}: target expiration in ${msg.expirationUnit}s was ${msg.expirationTime}. Key/value not cached.`);
+        done(null); // return null as result of cache set
+    }
+
+    // ExpirationCalculator takes momentjs stringy time units -- go to https://momentjs.com/docs/#/parsing/string-format/ for more info
+    console.log(msg.expirationTime, msg.expirationUnit);
+    const expirationTimeInSeconds = ExpirationCalculator.expireWithTimeUnit(msg.expirationTime, msg.expirationUnit);
+    console.log(expirationTimeInSeconds);
+
+    // cacheData expects a time value in seconds
+    cacheData(msg.key, msg.value, expirationTimeInSeconds, done);
 }
 
 function cacheData(key, value, time, done) {
