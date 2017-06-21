@@ -72,8 +72,11 @@ function callCache(data, done) {
     const seneca = this;
     const logger = seneca.log;
 
-    seneca.act({ plugin: 'redis-cache', cmd: 'native', EX: data }, (err, out) => {
-        // intercept here
-        done(err, out);
+
+    seneca.act({ role: 'cache', cmd: 'set', key: data.key }, (err, out) => {
+        seneca.act({ plugin: 'redis-cache', cmd: 'native', EX: data }, (err, out) => {
+            // intercept here
+            done(err, out);
+        });
     });
 }
