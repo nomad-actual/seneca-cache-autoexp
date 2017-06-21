@@ -47,6 +47,7 @@ function expireInSeconds(msg, done) {
     if (!msg.expirationSeconds || msg.expirationSeconds <= 0) {
         logger.error(`Cache provided bad data for key: ${msg.key}: target expiration in seconds was ${msg.expirationSeconds}. Key/value not cached.`);
         done(null); // return null as result of cache set
+        return;
     }
 
     cacheData(msg.key, msg.value, msg.expirationSeconds, done);
@@ -77,12 +78,11 @@ function expireWithTimeUnit(msg, done) {
     if (!msg.expirationUnit || !msg.expirationTime || msg.expirationTime <= 0) {
         logger.error(`Cache provided bad data for key: ${msg.key}: target expiration in ${msg.expirationUnit}s was ${msg.expirationTime}. Key/value not cached.`);
         done(null); // return null as result of cache set
+        return;
     }
 
     // ExpirationCalculator takes momentjs stringy time units -- go to https://momentjs.com/docs/#/parsing/string-format/ for more info
     const expirationTimeInSeconds = ExpirationCalculator.expireWithTimeUnit(msg.expirationTime, msg.expirationUnit);
-
-    // cacheData expects a time value in seconds
     cacheData(msg.key, msg.value, expirationTimeInSeconds, done);
 }
 
