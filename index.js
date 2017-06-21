@@ -62,7 +62,7 @@ function expireOnDate(msg, done) {
     const seneca = this;
     const logger = seneca.log;
 
-    if (!msg.expirationDate || msg.expirationDate <= 0) {
+    if (!msg.expirationDate) {
         logger.error(`Cache provided bad data for key: ${msg.key}: target expiration date was ${msg.expirationDate}. Key/value not cached.`);
         done(null); // return null as result of cache set
         return;
