@@ -116,7 +116,7 @@ lab.experiment('expireCalc tests', () => {
         const bin = resolve('./test/redis/redis-server');
         const server = new RedisServer({ port: 6379, bin });
 
-        lab.before((done) => {
+        lab.beforeEach((done) => {
             server.open().then(() => {
                 // You may now connect a client to the Redis server bound to `server.port`.
                 done();
@@ -125,7 +125,7 @@ lab.experiment('expireCalc tests', () => {
             });
         });
 
-        lab.after((done) => {
+        lab.afterEach((done) => {
             server.close().then(() => {
                 // The associated Redis server is now closed.
                 done();
@@ -144,6 +144,27 @@ lab.experiment('expireCalc tests', () => {
             };
 
             seneca.act(expireInSecondsPattern, (err, out) => {
+                Code.expect(err).to.equal(null);
+                Code.expect(out).to.not.equal(null);
+                Code.expect(out).to.equal({ key: goodKey });
+
+                finish();
+            });
+        });
+
+        lab.test('expireOnDate should return the expected key when called with valid data', (finish) => {
+            const seneca = initSeneca(finish);
+            const tomorrow = moment(new Date()).add(1, 'days');
+            const expireOnDatePattern = {
+                role: 'cache',
+                cmd: 'set',
+                expire: 'date',
+                key: goodKey,
+                value: goodValue,
+                expirationDate: tomorrow
+            };
+
+            seneca.act(expireOnDatePattern, (err, out) => {
                 Code.expect(err).to.equal(null);
                 Code.expect(out).to.not.equal(null);
                 Code.expect(out).to.equal({ key: goodKey });
