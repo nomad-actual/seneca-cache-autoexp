@@ -14,7 +14,6 @@
   "author": "Darren",
   "license": "ISC",
   "dependencies": {
-    "@makemydeal/dr-seneca-logger": "latest",
     "code": "^4.0.0",
     "lab": "^13.1.0",
     "moment": "^2.18.1",

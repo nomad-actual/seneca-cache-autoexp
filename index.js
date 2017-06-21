@@ -89,25 +89,16 @@ function expireWithTimeUnit(msg, done) {
 function cacheData(key, value, time, done) {
     const seneca = this;
     const logger = seneca.log;
-    logger.info({
-        message: `Cache request: key: ${key} to expire in ${time} seconds`,
-        tags: ['cache', 'redis', 'expire']
-    });
+    logger.info(`Cache request: key: ${key} to expire in ${time} seconds`);
     // call the cache set command to persist the data here. The expire was added in the original seneca-redis because the
     // redis client actually contains the set command to send additional data. It's possible that we'll just use the
     // npm redis client ourselves in here to gain additional commands not exposed in the seneca-redis plugin.
     seneca.act({ role: 'cache', cmd: 'set', key, value, expire: time }, (err, out) => {
         // log here
         if (err) {
-            logger.info({
-                message: `Cache request: key: ${key} to expire in ${time} seconds`,
-                tags: ['cache', 'redis', 'expire']
-            });
+            logger.info(`Cache request: key: ${key} to expire in ${time} seconds`);
         } else {
-            logger.info({
-                message: `Cache request: key: ${key} to expire in ${time} seconds`,
-                tags: ['cache', 'redis', 'expire']
-            });
+            logger.info(`Cache request: key: ${key} to expire in ${time} seconds`);
         }
 
         done(err || out);
