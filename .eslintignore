@@ -1,7 +1,6 @@
 // Directories
 out
 node_modules
-Jenkins
 
 // File patterns
 **/*.json
@@ -12,8 +11,5 @@ Jenkins
 **/*.txt
 
 // Specific files
-Dockerfile
-docker-compose.yml
-.dockerignore
 .gitignore
-Jenkins/*
+LICENSE
