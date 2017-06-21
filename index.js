@@ -50,7 +50,7 @@ function expireInSeconds(msg, done) {
         done(null); // return null as result of cache set
     }
 
-    cacheData(msg.key, msg.value, msg.expirationSeconds, done);
+    cacheData(msg.key, msg.value, msg.expirationSeconds, seneca, done);
 }
 
 /**
@@ -73,8 +73,7 @@ function expireOnDateWithTrustIssues(msg, done) {
     done(null); // always fail cache for now
 }
 
-function cacheData(key, value, time, done) {
-    const seneca = this;
+function cacheData(key, value, time, seneca, done) {
     const logger = seneca.log;
     logger.info({
         message: `Cache request: key: ${key} to expire in ${time} seconds`,
