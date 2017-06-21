@@ -22,61 +22,83 @@ module.exports = function (options) {
     // use the redis-cache
     seneca.use('seneca-redis-cache', opts);
 
-    // Get Vehicle which currently just acts on pdGateway
-    seneca.add({ role: 'cache', cmd: 'set', expireDate: '*' }, expireOnDate);
-    seneca.add({ role: 'cache', cmd: 'set', expireDate: '*', trustIssues: true }, expireOnDateWithTrustIssues); // don't trust the cache for a few days
-    seneca.add({ role: 'cache', cmd: 'set', expireSeconds: '*' }, expireInSeconds);
-    seneca.add({ role: 'cache', cmd: 'set', expireDuration: '*', timeUnits: '*' }, expireWithTimeUnit);
+    seneca.add({ role: 'cache', cmd: 'set', expire: 'seconds' }, expireInSeconds);
+    seneca.add({ role: 'cache', cmd: 'set', expire: 'date' }, expireOnDate);
+    seneca.add({ role: 'cache', cmd: 'set', expire: 'date', trustIssues: true }, expireOnDateWithTrustIssues);
+    // seneca.add({ role: 'cache', cmd: 'set', expire: 'time', timeUnits: '*' }, expireWithTimeUnit);
 
     return {
         name: PLUGIN_NAME
     };
 };
 
-function expireOnDate(msg, done) {
-    const seneca = this;
-    const logger = seneca.log;
-
-    // parse date
-    // if !date || !in future, send back null
-
-
-    const expiration = ExpirationCalculator.expireOnDate();
-    callCache(expiration, done);
+function doPrecheck(data) {
+    return data.key && (data.expirationDate || data.expirationSeconds);
 }
 
-function expireOnDateWithTrustIssues(msg, done) {
-    done(null);
-}
-
+/**
+ * Set a key to expire in a defined set of seconds. The msg incoming requires a msg.expirationSeconds which is > 0.
+ * @param {Object} msg
+ * @param {Function} done
+ */
 function expireInSeconds(msg, done) {
     const seneca = this;
     const logger = seneca.log;
 
-    if (!msg.seconds || msg.seconds <= 0) {
-        // log issue
-        done(null);
+    if (!msg.expirationSeconds || msg.expirationSeconds <= 0) {
+        logger.error(`Cache provided bad data for key: ${msg.key}: target expiration in seconds was ${msg.expirationSeconds}. Key/value not cached.`);
+        done(null); // return null as result of cache set
     }
 
-    callCache(msg.seconds, done);
+    cacheData(msg.key, msg.value, msg.expirationSeconds, done);
 }
 
-function expireWithTimeUnit(msg, done) {
+/**
+ * Set a single target time for a key to expire. Example: Expire a key/value at the first of the month.
+ * @param {Object} msg
+ * @param {Function} done
+ */
+function expireOnDate(msg, done) {
     const seneca = this;
     const logger = seneca.log;
 
+    // figure out number of seconds from then to now.
+
+    const targetExpireDate = msg.expirationDate;
+
+    // attempt to pare date
+    // if !date || !in future, send back null
+
+
+    const expiration = ExpirationCalculator.expireOnDate(targetExpireDate);
+    cacheData(expiration, done);
+}
+
+/**
+ * Similar to expireOnDate with an added check to make sure we only cache data AFTER a certain time period.
+ * Example: Expire on the 1st of the month but only start caching again after the first 7 days.
+ * @param {Object} msg
+ * @param {Function} done
+ */
+function expireOnDateWithTrustIssues(msg, done) {
     done(null);
 }
 
-function callCache(data, done) {
+function cacheData(key, value, time, done) {
     const seneca = this;
     const logger = seneca.log;
 
+    // call the cache set command to persist the data here. The expire was added in the original seneca-redis because the
+    // redis client actually contains the set command to send additional data. It's possible that we'll just use the
+    // npm redis client ourselves in here to gain additional commands not exposed in the seneca-redis plugin.
+    seneca.act({ role: 'cache', cmd: 'set', key, value, expire: time }, (err, out) => {
+        // intercept here
+        if (err) {
+            logger.info(`Logger result: error ${err}`);
+        } else {
+            logger.info(`Logger result: success ${out}`);
+        }
 
-    seneca.act({ role: 'cache', cmd: 'set', key: data.key }, (err, out) => {
-        seneca.act({ plugin: 'redis-cache', cmd: 'native', EX: data }, (err, out) => {
-            // intercept here
-            done(err, out);
-        });
+        done(err || out);
     });
 }

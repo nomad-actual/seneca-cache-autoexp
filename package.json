@@ -17,6 +17,7 @@
     "@makemydeal/dr-seneca-logger": "latest",
     "code": "^4.0.0",
     "lab": "^13.1.0",
+    "moment": "^2.18.1",
     "selectn": "^1.1.2",
     "seneca": "^3.3.0",
     "seneca-redis-cache": "git+https://github.com/MakeMyDeal/seneca-redis-cache.git"
