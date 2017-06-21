@@ -50,7 +50,7 @@ function expireInSeconds(msg, done) {
         return;
     }
 
-    cacheData(msg.key, msg.value, msg.expirationSeconds, done);
+    cacheData(msg.key, msg.value, msg.expirationSeconds, seneca, done);
 }
 
 /**
@@ -86,8 +86,7 @@ function expireWithTimeUnit(msg, done) {
     cacheData(msg.key, msg.value, expirationTimeInSeconds, done);
 }
 
-function cacheData(key, value, time, done) {
-    const seneca = this;
+function cacheData(key, value, time, seneca, done) {
     const logger = seneca.log;
     logger.info(`Cache request: key: ${key} to expire in ${time} seconds`);
     // call the cache set command to persist the data here. The expire was added in the original seneca-redis because the

@@ -1,12 +1,23 @@
 const Code = require('code');
 const Lab = require('lab');
 const moment = require('moment');
+const Seneca = require('seneca');
+const RedisServer = require('redis-server');
+const toTest = require('../expireCalc/expireCalc');
+const mockRedisData = require('./mockData/mockRedisCacheData');
 
 const lab = Lab.script();
 exports.lab = lab;
 
-const toTest = require('../expireCalc/expireCalc');
+const goodKey = mockRedisData.goodKey;
+const goodValue = mockRedisData.goodValue;
+const goodExpirationInSeconds = mockRedisData.goodExpirationInSeconds;
 
+const initSeneca = (done) => {
+    return Seneca({ log: 'test' })
+        .test(done)
+        .use(require('../index')); // eslint-disable-line global-require
+};
 
 lab.experiment('expireCalc tests', () => {
     lab.experiment('expireOnDate', () => {
@@ -96,6 +107,49 @@ lab.experiment('expireCalc tests', () => {
             Code.expect(toTest.expireWithTimeUnit({})).to.equal(-1);
             Code.expect(toTest.expireWithTimeUnit([])).to.equal(-1);
             finish();
+        });
+    });
+
+    lab.experiment('with Seneca', () => {
+        // Because seneca-redis-cache looks for a redis-serve on init, we need to start one up for it to see
+        const resolve = require('path').resolve; // eslint-disable-line global-require
+        const bin = resolve('./test/redis/redis-server');
+        const server = new RedisServer({ port: 6379, bin });
+
+        lab.before((done) => {
+            server.open().then(() => {
+                // You may now connect a client to the Redis server bound to `server.port`.
+                done();
+            }).catch((err) => {
+                console.log(err);
+            });
+        });
+
+        lab.after((done) => {
+            server.close().then(() => {
+                // The associated Redis server is now closed.
+                done();
+            });
+        });
+
+        lab.test('expireInSeconds should return the expected key when called with valid data', (finish) => {
+            const seneca = initSeneca(finish);
+            const expireInSecondsPattern = {
+                role: 'cache',
+                cmd: 'set',
+                expire: 'seconds',
+                key: goodKey,
+                value: goodValue,
+                expirationSeconds: goodExpirationInSeconds
+            };
+
+            seneca.act(expireInSecondsPattern, (err, out) => {
+                Code.expect(err).to.equal(null);
+                Code.expect(out).to.not.equal(null);
+                Code.expect(out).to.equal({ key: goodKey });
+
+                finish();
+            });
         });
     });
 });
