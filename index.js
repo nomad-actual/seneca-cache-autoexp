@@ -24,7 +24,7 @@ module.exports = function (options) {
 
     seneca.add({ role: 'cache', cmd: 'set', expire: 'seconds' }, expireInSeconds);
     seneca.add({ role: 'cache', cmd: 'set', expire: 'date' }, expireOnDate);
-    seneca.add({ role: 'cache', cmd: 'set', expire: 'time', timeUnits: '*' }, expireWithTimeUnit);
+    seneca.add({ role: 'cache', cmd: 'set', expire: 'time' }, expireWithTimeUnit);
 
     return {
         name: PLUGIN_NAME
@@ -92,7 +92,7 @@ function expireWithTimeUnit(msg, done) {
 
     // ExpirationCalculator takes momentjs stringy time units -- go to https://momentjs.com/docs/#/parsing/string-format/ for more info
     const expirationTimeInSeconds = ExpirationCalculator.expireWithTimeUnit(msg.expirationTime, msg.expirationUnit);
-    cacheData(msg.key, msg.value, expirationTimeInSeconds, done);
+    cacheData(msg.key, msg.value, expirationTimeInSeconds, seneca, done);
 }
 
 function cacheData(key, value, time, seneca, done) {

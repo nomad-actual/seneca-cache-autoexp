@@ -172,5 +172,26 @@ lab.experiment('expireCalc tests', () => {
                 finish();
             });
         });
+
+        lab.test('expireWithTimeUnit should return the expected key when called with valid data', (finish) => {
+            const seneca = initSeneca(finish);
+            const expireOnDatePattern = {
+                role: 'cache',
+                cmd: 'set',
+                expire: 'time',
+                key: goodKey,
+                value: goodValue,
+                expirationTime: 5,
+                expirationUnit: 'minutes'
+            };
+
+            seneca.act(expireOnDatePattern, (err, out) => {
+                Code.expect(err).to.equal(null);
+                Code.expect(out).to.not.equal(null);
+                Code.expect(out).to.equal({ key: goodKey });
+
+                finish();
+            });
+        });
     });
 });
