@@ -80,9 +80,7 @@ function expireWithTimeUnit(msg, done) {
     }
 
     // ExpirationCalculator takes momentjs stringy time units -- go to https://momentjs.com/docs/#/parsing/string-format/ for more info
-    console.log(msg.expirationTime, msg.expirationUnit);
     const expirationTimeInSeconds = ExpirationCalculator.expireWithTimeUnit(msg.expirationTime, msg.expirationUnit);
-    console.log(expirationTimeInSeconds);
 
     // cacheData expects a time value in seconds
     cacheData(msg.key, msg.value, expirationTimeInSeconds, done);
