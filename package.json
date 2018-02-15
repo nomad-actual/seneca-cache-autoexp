@@ -4,7 +4,7 @@
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "https://ghe.coxautoinc.com/Darren-Reed/dr-services-cache-autoexp.git"
+    "url": "https://github.com/CenturionD/seneca-cache-autoexp.git"
   },
   "scripts": {
     "start": "npm test",
@@ -20,7 +20,7 @@
     "seneca": "3.3.0",
     "seneca-redis-cache": "git+https://github.com/MakeMyDeal/seneca-redis-cache.git"
   },
-  "version": "1.0.1",
+  "version": "1.0.2",
   "directories": {
     "test": "test"
   },
