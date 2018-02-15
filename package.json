@@ -8,7 +8,7 @@
   },
   "scripts": {
     "start": "npm test",
-    "test": "eslint ** && lab test"
+    "test": "lab test"
   },
   "author": "Darren",
   "license": "ISC",
@@ -21,24 +21,7 @@
     "seneca-redis-cache": "git+https://github.com/MakeMyDeal/seneca-redis-cache.git"
   },
   "devDependencies": {
-    "@krux/condition-jenkins": "^1.0.1",
-    "eslint": "^3.19.0",
-    "eslint-config-airbnb": "^14.1.0",
-    "eslint-config-seneca": "^3.0.0",
-    "eslint-plugin-hapi": "^4.0.0",
-    "eslint-plugin-import": "^2.2.0",
-    "eslint-plugin-jsx-a11y": "^4.0.0",
-    "eslint-plugin-react": "^6.10.3",
-    "eslint-plugin-standard": "^2.1.0",
-    "redis-server":"1.1.0"
-  },
-  "release": {
-    "branch": "origin/master",
-    "githubUrl": "https://ghe.coxautoinc.com",
-    "githubApiPathPrefix": "/api/v3",
-    "verifyConditions": {
-      "path": "./node_modules/@krux/condition-jenkins"
-    }
+    "redis-server": "1.1.0"
   },
   "version": "1.0.0",
   "directories": {
