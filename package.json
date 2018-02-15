@@ -8,8 +8,7 @@
   },
   "scripts": {
     "start": "npm test",
-    "test": "eslint ** && lab test",
-    "semantic-release": "semantic-release pre && npm publish && semantic-release post"
+    "test": "eslint ** && lab test"
   },
   "author": "Darren",
   "license": "ISC",
@@ -23,7 +22,6 @@
   },
   "devDependencies": {
     "@krux/condition-jenkins": "^1.0.1",
-    "@makemydeal/eslint-config-dr-services": "latest",
     "eslint": "^3.19.0",
     "eslint-config-airbnb": "^14.1.0",
     "eslint-config-seneca": "^3.0.0",
@@ -32,8 +30,7 @@
     "eslint-plugin-jsx-a11y": "^4.0.0",
     "eslint-plugin-react": "^6.10.3",
     "eslint-plugin-standard": "^2.1.0",
-    "redis-server":"1.1.0",
-    "semantic-release": "^6.3.6"
+    "redis-server":"1.1.0"
   },
   "release": {
     "branch": "origin/master",
