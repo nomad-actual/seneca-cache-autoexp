@@ -49,7 +49,7 @@ function expireInSeconds(msg, done) {
         done(null); // return null as result of cache set
         return;
     }
-    logger.info(`Calling cacheData from expireInSeconds with ${msg}`);
+    logger.info(`Calling cacheData from expireInSeconds with ${msg.key} and ${msg.value}`);
     cacheData(msg.key, msg.value, msg.expirationSeconds, seneca, done);
 }
 
@@ -67,9 +67,9 @@ function expireOnDate(msg, done) {
         done(null); // return null as result of cache set
         return;
     }
-    logger.info(`Getting expiration from expireOnDate with ${msg}`);
+    logger.info(`Getting expiration from expireOnDate with ${msg.key} and ${msg.value}`);
     const expiration = ExpirationCalculator.expireOnDate(msg.expirationDate);
-    logger.info(`Calling cacheData from expireOnDate with ${msg} and ${expiration}`);
+    logger.info(`Calling cacheData from expireOnDate with ${msg.key} and ${msg.value} and ${expiration}`);
     cacheData(msg.key, msg.value, expiration, seneca, done);
 }
 
@@ -90,10 +90,10 @@ function expireWithTimeUnit(msg, done) {
         done(null); // return null as result of cache set
         return;
     }
-    logger.info(`Getting expiration from expireWithTimeUnit with ${msg}`);
+    logger.info(`Getting expiration from expireWithTimeUnit with ${msg.key} and ${msg.value}`);
     // ExpirationCalculator takes momentjs stringy time units -- go to https://momentjs.com/docs/#/parsing/string-format/ for more info
     const expirationTimeInSeconds = ExpirationCalculator.expireWithTimeUnit(msg.expirationTime, msg.expirationUnit);
-    logger.info(`Calling cacheData from expireWithTimeUnit with ${msg} and ${expirationTimeInSeconds}`);
+    logger.info(`Calling cacheData from expireWithTimeUnit with ${msg.key} and ${msg.value} and ${expirationTimeInSeconds}`);
     cacheData(msg.key, msg.value, expirationTimeInSeconds, seneca, done);
 }
 
