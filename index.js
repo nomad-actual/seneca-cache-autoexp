@@ -49,7 +49,7 @@ function expireInSeconds(msg, done) {
         done(null); // return null as result of cache set
         return;
     }
-
+    logger.info(`Calling cacheData from expireInSeconds with ${msg}`);
     cacheData(msg.key, msg.value, msg.expirationSeconds, seneca, done);
 }
 
@@ -67,8 +67,9 @@ function expireOnDate(msg, done) {
         done(null); // return null as result of cache set
         return;
     }
-
+    logger.info(`Getting expiration from expireOnDate with ${msg}`);
     const expiration = ExpirationCalculator.expireOnDate(msg.expirationDate);
+    logger.info(`Calling cacheData from expireOnDate with ${msg} and ${expiration}`);
     cacheData(msg.key, msg.value, expiration, seneca, done);
 }
 
@@ -89,10 +90,11 @@ function expireWithTimeUnit(msg, done) {
         done(null); // return null as result of cache set
         return;
     }
-
+    logger.info(`Getting expiration from expireWithTimeUnit with ${msg}`);
     // ExpirationCalculator takes momentjs stringy time units -- go to https://momentjs.com/docs/#/parsing/string-format/ for more info
     const expirationTimeInSeconds = ExpirationCalculator.expireWithTimeUnit(msg.expirationTime, msg.expirationUnit);
-    cacheData(msg.key, msg.value, expirationTimeInSeconds, done);
+    logger.info(`Calling cacheData from expireWithTimeUnit with ${msg} and ${expirationTimeInSeconds}`);
+    cacheData(msg.key, msg.value, expirationTimeInSeconds, seneca, done);
 }
 
 function cacheData(key, value, time, seneca, done) {
@@ -104,9 +106,9 @@ function cacheData(key, value, time, seneca, done) {
     seneca.act({ role: 'cache', cmd: 'set', key, value, expire: time }, (err, out) => {
         // log here
         if (err) {
-            logger.info(`Cache request: key: ${key} to expire in ${time} seconds`);
+            logger.error(`Cache request failure: key: ${key}`);
         } else {
-            logger.info(`Cache request: key: ${key} to expire in ${time} seconds`);
+            logger.info(`Cache request success: key: ${key} to expire in ${time} seconds`);
         }
 
         done(err || out);
