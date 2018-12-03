@@ -45,11 +45,19 @@ function expireInSeconds(msg, done) {
     const logger = seneca.log;
 
     if (!msg.expirationSeconds || msg.expirationSeconds <= 0) {
-        logger.error(`Cache provided bad data for key: ${msg.key}: target expiration in seconds was ${msg.expirationSeconds}. Key/value not cached.`);
+        logger.error({
+            message: 'Cache provided bad data. Key/value not cached.',
+            meta: {
+                key: msg.key,
+                value: msg.value,
+                expiration: msg.expirationSeconds
+            },
+            tags: ['seneca-cache-autoexp', 'expireInSeconds']
+        });
         done(null); // return null as result of cache set
         return;
     }
-    logger.info(`Calling cacheData from expireInSeconds with ${msg.key} and ${msg.value}`);
+    logCacheSteps(msg, 'Calling cacheData', seneca, 'expireInSeconds');
     cacheData(msg.key, msg.value, msg.expirationSeconds, seneca, done);
 }
 
@@ -63,13 +71,21 @@ function expireOnDate(msg, done) {
     const logger = seneca.log;
 
     if (!msg.expirationDate) {
-        logger.error(`Cache provided bad data for key: ${msg.key}: target expiration date was ${msg.expirationDate}. Key/value not cached.`);
+        logger.error({
+            message: 'Cache provided bad data. Key/value not cached.',
+            meta: {
+                key: msg.key,
+                value: msg.value,
+                expiration: msg.expirationDate
+            },
+            tags: ['seneca-cache-autoexp', 'expireOnDate']
+        });
         done(null); // return null as result of cache set
         return;
     }
-    logger.info(`Getting expiration from expireOnDate with ${msg.key} and ${msg.value}`);
+
     const expiration = ExpirationCalculator.expireOnDate(msg.expirationDate);
-    logger.info(`Calling cacheData from expireOnDate with ${msg.key} and ${msg.value} and ${expiration}`);
+    logCacheSteps(msg, 'Calling cacheData', seneca, 'expireOnDate');
     cacheData(msg.key, msg.value, expiration, seneca, done);
 }
 
@@ -86,31 +102,67 @@ function expireWithTimeUnit(msg, done) {
     // msg.expirationTime - number of time units after which to expire
 
     if (!msg.expirationUnit || !msg.expirationTime || msg.expirationTime <= 0) {
-        logger.error(`Cache provided bad data for key: ${msg.key}: target expiration in ${msg.expirationUnit}s was ${msg.expirationTime}. Key/value not cached.`);
+        logger.error({
+            message: 'Cache provided bad data. Key/value not cached.',
+            meta: {
+                key: msg.key,
+                value: msg.value,
+                expirationUnit: msg.expirationUnit,
+                expirationTime: msg.expirationTime
+            },
+            tags: ['seneca-cache-autoexp', 'expireWithTimeUnit']
+        });
         done(null); // return null as result of cache set
         return;
     }
-    logger.info(`Getting expiration from expireWithTimeUnit with ${msg.key} and ${msg.value}`);
     // ExpirationCalculator takes momentjs stringy time units -- go to https://momentjs.com/docs/#/parsing/string-format/ for more info
     const expirationTimeInSeconds = ExpirationCalculator.expireWithTimeUnit(msg.expirationTime, msg.expirationUnit);
-    logger.info(`Calling cacheData from expireWithTimeUnit with ${msg.key} and ${msg.value} and ${expirationTimeInSeconds}`);
+    logCacheSteps(msg,  'Calling cacheData', seneca, 'expireWithTimeUnit');
     cacheData(msg.key, msg.value, expirationTimeInSeconds, seneca, done);
 }
 
 function cacheData(key, value, time, seneca, done) {
     const logger = seneca.log;
-    logger.info(`Cache request: key: ${key} to expire in ${time} seconds`);
+    const msg = {
+        key,
+        value,
+        time
+    }
+    logCacheSteps(msg, 'Cache request', seneca, 'cacheData');
     // call the cache set command to persist the data here. The expire was added in the original seneca-redis because the
     // redis client actually contains the set command to send additional data. It's possible that we'll just use the
     // npm redis client ourselves in here to gain additional commands not exposed in the seneca-redis plugin.
     seneca.act({ role: 'cache', cmd: 'set', key, value, expire: time }, (err, out) => {
         // log here
         if (err) {
-            logger.error(`Cache request failure: key: ${key}`);
+            logger.error({
+                message: 'Cache request failure',
+                meta: {
+                    key,
+                    value,
+                    time
+                },
+                tags: ['seneca-cache-autoexp', 'cacheData']
+            });
         } else {
-            logger.info(`Cache request success: key: ${key} to expire in ${time} seconds`);
+            logCacheSteps(msg, 'Cache data success', seneca, 'cacheData');
         }
 
         done(err || out);
     });
+}
+
+function logCacheSteps(msg, message, seneca, tag) {
+    const logger = seneca.log;
+    if (msg.logCacheSteps) {
+        logger.info({
+            message,
+            meta: {
+                key: msg.key,
+                value: msg.value,
+            },
+            msg,
+            tags: ['seneca-cache-autoexp', tag]
+        });
+    }
 }

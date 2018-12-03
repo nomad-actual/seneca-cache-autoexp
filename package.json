@@ -20,7 +20,7 @@
     "seneca": "3.3.0",
     "seneca-redis-cache": "git+https://github.com/MakeMyDeal/seneca-redis-cache.git"
   },
-  "version": "1.0.3",
+  "version": "1.0.4",
   "directories": {
     "test": "test"
   },
