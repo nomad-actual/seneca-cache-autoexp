@@ -1,8 +1,4 @@
 # dr-services-cache-autoexp
-Seneca plugin with a convenient set of actions for auto-expiring cached data in (currently) Redis
+Seneca plugin with a convenient set of actions for auto-expiring cached data in (currently) Redis.
 
-Consider this historically valid but otherwise deprecated. I doubt it works with latest Seneca.
-
-## Historical Context
-
-Used as a cache autoexpiration as a Seneca plugin to be used to calculate a target date for Redis TTL
+Consider this historically interesting but otherwise deprecated. It is doubtful it works with recent versions of SenecaJs
